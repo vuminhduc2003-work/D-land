@@ -1,0 +1,30 @@
+/* Ẩn menu ban đầu */
+.hidden {
+    display: none;
+}
+
+/* Định dạng cho menu */
+#menu {
+    background-color: #f1f1f1;
+    border: 1px solid #ddd;
+    padding: 10px;
+    position: absolute;
+    top: 50px;
+    left: 0;
+    width: 150px;
+}
+
+#menu ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#menu li {
+    padding: 5px;
+    cursor: pointer;
+}
+
+#menu li:hover {
+    background-color: #ddd;
+}

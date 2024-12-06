@@ -51,10 +51,13 @@ class CanHo(models.Model):
         ('Tây', 'Tây'),
         ('Nam', 'Nam'),
         ('Bắc', 'Bắc'),
-
+        ('Đông Nam', 'Đông Nam'),
+        ('Tây Nam', 'Tây Nam'),
+        ('Đông Bắc', 'Đông Bắc'),
+        ('Tây Bắc', 'Tây Bắc')
     ])  # Hướng căn hộ
 
-    trang_thai = models.CharField(max_length=20, choices=[('Trống', 'Trống'), ('Đã thuê', 'Đã thuê'),('Đã bán','Đã bán')], default='Trống')
+    trang_thai = models.CharField(max_length=20, choices=[('Trống', 'Trống'), ('Đã thuê', 'Đã thuê'),('Đã bán','Đã bán'),('Bảo trì','Bảo trì')], default='Trống')
 
 
     def __str__(self):

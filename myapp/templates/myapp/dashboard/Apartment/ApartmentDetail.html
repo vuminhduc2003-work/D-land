@@ -31,4 +31,33 @@
               </div>
         </div>
     </div>
+
+
+    <script>
+    const updateApartment = async (id, updateData) => {
+        const url = `http://127.0.0.1:8000/api/can-ho/${id}/`
+    }
+        try {
+            const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+
+                },
+                body: JSON.stringify(updateData)
+            });
+            if (response.ok) {
+                const data = await response.json();
+                console.log('cập nhập thành công', data);
+            } else {
+                const error = await response.json();
+                console.log('Lỗi cập nhập', error);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+
+
+
+    </script>
 {% endblock %}

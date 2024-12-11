@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.timezone import now
 
 # Create your models here.
 
@@ -14,7 +15,7 @@ class CuDan(models.Model):
     ngay_sinh = models.DateField(null=True, blank=True)
     gioi_tinh = models.CharField(max_length=10, choices=[('Nam', 'Nam'), ('Nữ', 'Nữ')], default='Nam')
     dia_chi = models.CharField(max_length=255)
-    ngay_dang_ky = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=now)  # datetime hợp lệ
     can_ho = models.ForeignKey('CanHo', on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
@@ -31,17 +32,10 @@ class NguoiNha(models.Model):
     def __str__(self):
         return f'{self.ho_ten} ({self.quan_he}) của {self.cu_dan_chinh.ho_ten}'
 
-class ChuSoHuu(models.Model):
-    ho_ten = models.CharField(max_length=100)  # Họ tên chủ sở hữu
-    so_dien_thoai = models.CharField(max_length=15)  # Số điện thoại
-    email = models.EmailField()  # Email
-
-    def __str__(self):
-        return self.ho_ten
-
 
 class CanHo(models.Model):
-    chu_so_huu = models.ManyToManyField(ChuSoHuu, related_name='can_ho', blank=True)  # Liên kết nhiều chủ sở hữu/cư dân
+    id = models.AutoField(primary_key=True)
+
     ma_can_ho = models.CharField(max_length=20, unique=True)
     toa_nha = models.CharField(max_length=50)
     so_tang = models.IntegerField()
@@ -56,9 +50,8 @@ class CanHo(models.Model):
         ('Đông Bắc', 'Đông Bắc'),
         ('Tây Bắc', 'Tây Bắc')
     ])  # Hướng căn hộ
-
-    trang_thai = models.CharField(max_length=20, choices=[('Trống', 'Trống'), ('Đã thuê', 'Đã thuê'),('Đã bán','Đã bán'),('Bảo trì','Bảo trì')], default='Trống')
-
+    trang_thai = models.CharField(max_length=20, choices=[('Trống', 'Trống'), ('Đã thuê', 'Đã thuê'), ('Đã bán', 'Đã bán'), ('Bảo trì', 'Bảo trì')], default='Trống')
+    cu_dan = models.ManyToManyField(CuDan, related_name='ds_can_ho', blank=True)  # Đổi related_name thành 'ds_can_ho'
 
     def __str__(self):
         return f'{self.ma_can_ho} - {self.toa_nha}'

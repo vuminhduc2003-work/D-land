@@ -8,7 +8,6 @@ from pyexpat.errors import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.urls import reverse
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .forms import RegisterForm
@@ -16,7 +15,6 @@ from django.contrib.auth.views import LoginView,  LogoutView
 from rest_framework import viewsets, status
 from .models import CanHo, CuDan
 from .serializers import CanHoSerializer, CuDanSerializer
-from rest_framework import generics
 
 
 def is_admin(user):
@@ -63,6 +61,7 @@ def home(request):
 @login_required
 @user_passes_test(is_admin, login_url='/login')
 def dashboard(request):
+
     return render(request, 'dashboard2.html', {'title': 'Dashboard'})
 
 
@@ -72,7 +71,7 @@ def apartment_view(request):
 class ApartmentAPIView(APIView):
 
     def get(self, request):
-        canhos = CanHo.objects.all()
+        canhos = CanHo.objects.all()[:10]
         serializer = CanHoSerializer(canhos, many=True)
         return Response(serializer.data)
 
@@ -96,6 +95,25 @@ class ApartmentDetailView(APIView):
             return Response(serializer.data)
         except CanHo.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+    @csrf_exempt
+    def put(self, request, pk):
+        try:
+            canho = CanHo.objects.get(pk=pk)
+            serializer = CanHoSerializer(canho, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status = status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except CanHo.DoesNotExist:
+            return Response({"detail":"Apartment not found"},status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, pk):
+        canho = CanHo.objects.get(pk=pk)
+        canho.delete()
+        return Response({"detail":"Can Ho da duoc xoa"},status=status.HTTP_204_NO_CONTENT)
+
+
 def apartment_detail(request, id):
     apartment = get_object_or_404(CanHo, id=id)
     return render(request, 'myapp/dashboard/Apartment/ApartmentDetail.html', {'apartment': apartment})
@@ -105,13 +123,16 @@ def Resident(request):
 
 class ResidentAPIView(APIView):
     def get(self, request):
+        try:
+            residents = CuDan.objects.all()
+            serializer = CuDanSerializer(residents, many=True)
+            return Response(serializer.data)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
-        residents = CuDan.objects.all()
-        serializer = CuDanSerializer(residents, many=True)
-        return Response(serializer.data)
 
     def resident_list(request):
-        residents = Resident.objects.select_related('ma_can_ho').all()  # Sử dụng select_related để truy xuất căn hộ cùng lúc
+        residents = CanHo.objects.select_related('ma_can_ho').all()  # Sử dụng select_related để truy xuất căn hộ cùng lúc
         return render(request, 'myapp/dashboard/Resident/Resident.html', {'residents': residents})
 
     @csrf_exempt
@@ -123,3 +144,8 @@ class ResidentAPIView(APIView):
         else:
             print("Lỗi khi serialize:", serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def Notification(request):
+    return render(request, 'myapp/Website/navWeb/Notification.html')
+
+

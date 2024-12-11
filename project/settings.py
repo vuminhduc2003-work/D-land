@@ -131,7 +131,11 @@ COMPRESS_ROOT = BASE_DIR / 'static'
 
 COMPRESS_ENABLED = True
 
-STATICFILES_FINDERS = ('compressor.finders.CompressorFinder',)
+STATICFILES_FINDERS = [
+    "django.contrib.staticfiles.finders.FileSystemFinder",
+    "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+    "compressor.finders.CompressorFinder",
+]
 
 import os
 
@@ -142,5 +146,14 @@ LOGOUT_REDIRECT_URL = 'login'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.BasicAuthentication',
-    ]
+
+    ],
 }
+
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',  # Thư mục chứa các file static trong dự án
+]
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # Thư mục cho collectstatic
+

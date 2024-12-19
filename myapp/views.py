@@ -12,10 +12,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .forms import RegisterForm
 from django.contrib.auth.views import LoginView,  LogoutView
-from rest_framework import viewsets, status
-from .models import CanHo, CuDan
-from .serializers import CanHoSerializer, CuDanSerializer
-
+from rest_framework import viewsets
+from .models import Resident, FamilyMember, Apartment, Room, Facility, ServiceFee, MaintenanceRequest, Notification, EntryExitHistory, RentalAgreement
+from .serializers import ResidentSerializer, FamilyMemberSerializer, ApartmentSerializer, RoomSerializer, FacilitySerializer, ServiceFeeSerializer, MaintenanceRequestSerializer, NotificationSerializer, EntryExitHistorySerializer, RentalAgreementSerializer
 
 def is_admin(user):
     return user.is_superuser
@@ -43,7 +42,7 @@ def login_view(request):
         if user is not None:
             login(request, user)
             messages.success(request, "Đăng nhập thành công!")
-            return redirect('home')
+            return redirect('dashboard')
         else:
             messages.error(request,"Tên đăng nhập hoặc mật khẩu không đúng!")
     return render(request, 'myapp/login.html')
@@ -61,91 +60,48 @@ def home(request):
 @login_required
 @user_passes_test(is_admin, login_url='/login')
 def dashboard(request):
-
+    # Nếu người dùng không phải admin, họ sẽ bị chuyển hướng tới trang đăng nhập
     return render(request, 'dashboard2.html', {'title': 'Dashboard'})
 
-
-def apartment_view(request):
-    return render(request, 'myapp/dashboard/Apartment/Apartment.html')
-
-class ApartmentAPIView(APIView):
-
-    def get(self, request):
-        canhos = CanHo.objects.all()[:10]
-        serializer = CanHoSerializer(canhos, many=True)
-        return Response(serializer.data)
-
-    @csrf_exempt
-    def post(self, request):
-        print("Dữ liệu nhận được:", request.data)
-        serializer = CanHoSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            print("Lỗi khi serialize:", serializer.errors)  # Log lỗi nếu có
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class ApartmentDetailView(APIView):
-    def get(self, request, pk):
-        try:
-            canho = CanHo.objects.get(pk=pk)
-            serializer = CanHoSerializer(canho)
-            return Response(serializer.data)
-        except CanHo.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-    @csrf_exempt
-    def put(self, request, pk):
-        try:
-            canho = CanHo.objects.get(pk=pk)
-            serializer = CanHoSerializer(canho, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status = status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except CanHo.DoesNotExist:
-            return Response({"detail":"Apartment not found"},status=status.HTTP_404_NOT_FOUND)
-
-    def delete(self, request, pk):
-        canho = CanHo.objects.get(pk=pk)
-        canho.delete()
-        return Response({"detail":"Can Ho da duoc xoa"},status=status.HTTP_204_NO_CONTENT)
-
-
-def apartment_detail(request, id):
-    apartment = get_object_or_404(CanHo, id=id)
-    return render(request, 'myapp/dashboard/Apartment/ApartmentDetail.html', {'apartment': apartment})
-
-def Resident(request):
+def resident_list(request):
     return render(request, 'myapp/dashboard/Resident/Resident.html')
 
-class ResidentAPIView(APIView):
-    def get(self, request):
-        try:
-            residents = CuDan.objects.all()
-            serializer = CuDanSerializer(residents, many=True)
-            return Response(serializer.data)
-        except:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+class ResidentViewSet(viewsets.ModelViewSet):
+    queryset = Resident.objects.all()
+    serializer_class = ResidentSerializer
 
+class FamilyMemberViewSet(viewsets.ModelViewSet):
+    queryset = FamilyMember.objects.all()
+    serializer_class = FamilyMemberSerializer
 
-    def resident_list(request):
-        residents = CanHo.objects.select_related('ma_can_ho').all()  # Sử dụng select_related để truy xuất căn hộ cùng lúc
-        return render(request, 'myapp/dashboard/Resident/Resident.html', {'residents': residents})
+class ApartmentViewSet(viewsets.ModelViewSet):
+    queryset = Apartment.objects.all()
+    serializer_class = ApartmentSerializer
 
-    @csrf_exempt
-    def post(self, request):
-        serializer = CuDanSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            print("Lỗi khi serialize:", serializer.errors)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class RoomViewSet(viewsets.ModelViewSet):
+    queryset = Room.objects.all()
+    serializer_class = RoomSerializer
 
-def Notification(request):
-    return render(request, 'myapp/Website/navWeb/Notification.html')
+class FacilityViewSet(viewsets.ModelViewSet):
+    queryset = Facility.objects.all()
+    serializer_class = FacilitySerializer
 
+class ServiceFeeViewSet(viewsets.ModelViewSet):
+    queryset = ServiceFee.objects.all()
+    serializer_class = ServiceFeeSerializer
 
+class MaintenanceRequestViewSet(viewsets.ModelViewSet):
+    queryset = MaintenanceRequest.objects.all()
+    serializer_class = MaintenanceRequestSerializer
+
+class NotificationViewSet(viewsets.ModelViewSet):
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
+
+class EntryExitHistoryViewSet(viewsets.ModelViewSet):
+    queryset = EntryExitHistory.objects.all()
+    serializer_class = EntryExitHistorySerializer
+
+class RentalAgreementViewSet(viewsets.ModelViewSet):
+    queryset = RentalAgreement.objects.all()
+    serializer_class = RentalAgreementSerializer

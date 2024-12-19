@@ -20,4 +20,6 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),  # Đường dẫn đến trang admin
     path('', include('myapp.urls')),  # Các URL khác cho ứng dụng của bạn
+
+
 ]

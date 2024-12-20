@@ -4,7 +4,7 @@ from django.utils.timezone import now
 from django.contrib.auth.models import User
 
 class Resident(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)  # Link to user account
+    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)  # Link to user account
     full_name = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=15, unique=True)
     email = models.EmailField(unique=True)

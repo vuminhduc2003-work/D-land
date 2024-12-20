@@ -70,6 +70,9 @@ class ResidentViewSet(viewsets.ModelViewSet):
     queryset = Resident.objects.all()
     serializer_class = ResidentSerializer
 
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
 class FamilyMemberViewSet(viewsets.ModelViewSet):
     queryset = FamilyMember.objects.all()
     serializer_class = FamilyMemberSerializer

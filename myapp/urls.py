@@ -24,6 +24,6 @@ urlpatterns = [
 
     path('', include('myapp.url_api')),  # Các URL khác cho ứng dụng của bạn
 
-    path('resident-list/', views.resident_list, name='resident-list'),
+    path('residents/', views.resident_list, name='resident-list'),
 
     ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

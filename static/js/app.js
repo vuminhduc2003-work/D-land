@@ -67,11 +67,23 @@ function fetchResidents() {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.status === 201) {  // Kiểm tra response status đúng
+        if (data) {
+            // Hiển thị thông báo thành công
             const successAlert = document.getElementById('successAlert');
-            successAlert.classList.remove('hidden');  // Hiển thị alert khi thành công
+            successAlert.textContent = 'Cư dân đã được thêm thành công!';
+            successAlert.classList.remove('hidden');  // Hiển thị thông báo thành công
+            successAlert.classList.add('bg-green-500', 'text-white');  // Thêm màu nền xanh
+
+            // Tải lại trang sau 2 giây
+            setTimeout(function() {
+                location.reload(); // Tải lại trang
+            }, 2000);
         } else {
-            console.error('Failed to add resident:', data);
+            // Hiển thị thông báo thất bại
+            const errorAlert = document.getElementById('errorAlert');
+            errorAlert.textContent = 'Đã có lỗi xảy ra! Không thể thêm cư dân.';
+            errorAlert.classList.remove('hidden');  // Hiển thị thông báo lỗi
+            errorAlert.classList.add('bg-red-500', 'text-white');  // Thêm màu nền đỏ
         }
     })
     .catch(error => {

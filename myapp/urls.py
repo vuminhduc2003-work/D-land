@@ -26,4 +26,5 @@ urlpatterns = [
 
     path('residents/', views.resident_list, name='resident-list'),
 
+
     ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

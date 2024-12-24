@@ -26,8 +26,10 @@ function fetchResidents() {
                         ${resident.address}
                     </td>
                     <td class="px-6 py-4">
-                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline" onclick="deleteResidentAPI(${resident.id})">Xoa</a>
+                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline" onclick="deleteResidentAPI(${resident.id})">Xoá</a>
+                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline" onclick="fetchResidentDetails(${resident.id})">Chi tiết</a>
                     </td>
+                    
                 `;
                 tableBody.appendChild(row);
             });
@@ -35,6 +37,7 @@ function fetchResidents() {
         .catch(error => {
             console.error('Error fetching residents:', error);
         });
+
 
 
     document.getElementById('addResidentForm').addEventListener('submit', function (event) {
@@ -69,7 +72,7 @@ function fetchResidents() {
     .then(data => {
         if (data) {
             // Hiển thị thông báo thành công
-            const successAlert = document.getElementById('successAlert');
+            const successAlert = document.getElementById('successAlertCreateResident');
             successAlert.textContent = 'Cư dân đã được thêm thành công!';
             successAlert.classList.remove('hidden');  // Hiển thị thông báo thành công
             successAlert.classList.add('bg-green-500', 'text-white');  // Thêm màu nền xanh
@@ -92,18 +95,70 @@ function fetchResidents() {
 });
 
 }
+
+// Hàm mở modal và hiển thị thông tin chi tiết
+function fetchResidentDetails(residentId) {
+    const url = `http://127.0.0.1:8000/api/residents/${residentId}/`;
+
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Error fetching resident details: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Resident Data:', data); // Kiểm tra dữ liệu trả về
+
+            // Điền thông tin cư dân vào form
+            document.getElementById('edit_full_name').value = data.full_name || '';
+            document.getElementById('edit_phone_number').value = data.phone_number || '';
+            document.getElementById('edit_email').value = data.email || '';
+            document.getElementById('edit_date_of_birth').value = data.date_of_birth || '';
+            document.getElementById('edit_gender').value = data.gender || 'Male';
+            document.getElementById('edit_address').value = data.address || '';
+
+            // Hiển thị modal
+            const modal = document.getElementById('detail-modal');
+            modal.classList.remove('hidden');
+        })
+        .catch(error => {
+            console.error('Error fetching resident details:', error);
+
+            // Hiển thị thông báo lỗi
+            const errorAlert = document.getElementById('errorAlert');
+            errorAlert.textContent = error.message;
+            errorAlert.classList.remove('hidden');
+
+            // Ẩn thông báo lỗi sau 3 giây
+            setTimeout(() => {
+                errorAlert.classList.add('hidden');
+            }, 3000);
+        });
+}
+
+function closeModal() {
+    const modal = document.getElementById('detail-modal');
+    modal.classList.add('hidden');
+}
+
 function deleteResidentAPI(residentId) {
     if(confirm('Bạn có muốn xoá cư dân này không ?')) {
         fetch(`http://127.0.0.1:8000/api/residents/${residentId}/`, {
             method: 'DELETE',
-
         })
+
         .then(response => {
             if (response.ok) {
                 // Hiển thị thông báo thành công
                 const successAlert = document.getElementById('successAlert');
                 successAlert.classList.remove('hidden');  // Hiển thị alert
-
                 // Tải lại danh sách cư dân sau khi xóa
                 fetchResidents();
 
@@ -121,7 +176,6 @@ function deleteResidentAPI(residentId) {
         });
     }
 }
-
 
 
 // Gọi hàm khi tải trang

@@ -8,11 +8,12 @@ from pyexpat.errors import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.urls import reverse
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .forms import RegisterForm
 from django.contrib.auth.views import LoginView,  LogoutView
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from .models import Resident, FamilyMember, Apartment, Room, Facility, ServiceFee, MaintenanceRequest, Notification, EntryExitHistory, RentalAgreement
 from .serializers import ResidentSerializer, FamilyMemberSerializer, ApartmentSerializer, RoomSerializer, FacilitySerializer, ServiceFeeSerializer, MaintenanceRequestSerializer, NotificationSerializer, EntryExitHistorySerializer, RentalAgreementSerializer
 
@@ -72,6 +73,7 @@ class ResidentViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
+
 
 class FamilyMemberViewSet(viewsets.ModelViewSet):
     queryset = FamilyMember.objects.all()

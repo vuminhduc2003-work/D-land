@@ -1,7 +1,7 @@
 from django.contrib.auth.views import LogoutView
 from django.urls import path
 from . import views
-from .views import login_view, ResidentViewSet
+from .views import login_view, ResidentViewSet, apartment_list
 from .views import CustomLogoutView
 from django.urls import path, include
 from django.conf import settings
@@ -26,5 +26,6 @@ urlpatterns = [
 
     path('residents/', views.resident_list, name='resident-list'),
 
+    path('apartment', apartment_list, name='apartment_list'),
 
     ]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

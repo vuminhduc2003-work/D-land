@@ -66,7 +66,8 @@ def dashboard(request):
 
 def resident_list(request):
     return render(request, 'myapp/dashboard/Resident/Resident.html')
-
+def apartment_list(request):
+    return render(request, 'myapp/dashboard/Apartment/Apartment.html')
 class ResidentViewSet(viewsets.ModelViewSet):
     queryset = Resident.objects.all()
     serializer_class = ResidentSerializer

@@ -1,5 +1,6 @@
 function fetchResidents() {
-    fetch('http://127.0.0.1:8000/api/residents/')
+    const urlAPIResident = 'http://127.0.0.1:8000/api/residents/'
+    fetch(urlAPIResident)
         .then(response => response.json())
         .then(data => {
             const tableBody = document.querySelector('#residentTable tbody');
@@ -26,8 +27,8 @@ function fetchResidents() {
                         ${resident.address}
                     </td>
                     <td class="px-6 py-4">
-                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline" onclick="deleteResidentAPI(${resident.id})">Xoá</a>
-                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline" onclick="fetchResidentDetails(${resident.id})">Chi tiết</a>
+                        <button class="btn btn-warning btn-sm" onclick="fetchResidentDetails(${resident.id})">Chi tiết</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteResidentAPI(${resident.id})">Xóa</button>
                     </td>
                 `;
                 tableBody.appendChild(row);
@@ -254,6 +255,142 @@ function deleteResidentAPI(residentId) {
     window.onload = function() {
 }
 
+
+const apiUrlApartment = 'http://127.0.0.1:8000/api/apartments/';
+
+// Hàm tải danh sách căn hộ
+async function fetchApartments() {
+    const apartmentTable = document.querySelector('#apartmentTable tbody');
+    apartmentTable.innerHTML = ''; // Xóa dữ liệu cũ
+
+    try {
+        const response = await fetch(apiUrlApartment);
+
+        if (!response.ok) {
+            throw new Error(`Lỗi khi gọi API: ${response.status} - ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        data.forEach((apartment, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${apartment.apartment_code}</td>
+                <td>${apartment.building}</td>
+                <td>${apartment.floor_number}</td>
+                <td>${apartment.area} m²</td>
+                <td>${apartment.status}</td>
+                <td>
+                    <button class="btn btn-info btn-sm" onclick="viewApartmentDetails(${apartment.id})">Xem Chi Tiết</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteApartment(${apartment.id})">Xóa</button>
+                </td>
+            `;
+            apartmentTable.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Lỗi khi tải danh sách căn hộ:', error);
+        alert('Không thể tải danh sách căn hộ. Vui lòng thử lại sau.');
+    }
+}
+async function viewApartmentDetails(apartmentId) {
+    const apiUrlApartmentDetail = `http://127.0.0.1:8000/api/apartments/${apartmentId}/`;
+
+    try {
+        const response = await fetch(apiUrlApartmentDetail);
+
+        if (!response.ok) {
+            throw new Error('Không thể tải thông tin căn hộ');
+        }
+
+        const apartment = await response.json();
+
+        // Cập nhật thông tin chi tiết căn hộ vào modal
+        document.getElementById('apartmentCodeDetail').textContent = apartment.apartment_code;
+        document.getElementById('buildingDetail').textContent = apartment.building;
+        document.getElementById('floorNumberDetail').textContent = apartment.floor_number;
+        document.getElementById('areaDetail').textContent = apartment.area;
+        document.getElementById('apartmentOrientationDetail').textContent = apartment.apartment_orientation;
+        document.getElementById('statusDetail').textContent = apartment.status;
+
+        // Mở modal
+        const modal = new bootstrap.Modal(document.getElementById('viewApartmentModal'));
+        modal.show();
+    } catch (error) {
+        console.error('Lỗi:', error);
+        alert('Có lỗi xảy ra khi tải thông tin căn hộ.');
+    }
+}
+// Hàm xử lý khi gửi biểu mẫu trong modal
+async function addApartment(event) {
+    event.preventDefault(); // Ngăn chặn reload trang
+
+    // Lấy dữ liệu từ modal
+    const apartmentData = {
+        apartment_code: document.getElementById('apartmentCode').value,
+        building: document.getElementById('building').value,
+        floor_number: parseInt(document.getElementById('floorNumber').value),
+        area: parseFloat(document.getElementById('area').value),
+        apartment_orientation: document.getElementById('apartmentOrientation').value,
+        status: document.getElementById('status').value,
+    };
+
+    try {
+        const response = await fetch(apiUrlApartment, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(apartmentData),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Lỗi khi thêm căn hộ: ${response.status}`);
+        }
+
+        alert('Thêm căn hộ thành công!');
+        document.getElementById('apartmentForm').reset(); // Xóa dữ liệu form
+        fetchApartments(); // Tải lại danh sách căn hộ
+
+        // Ẩn modal
+        const modalElement = document.querySelector('#addApartmentModal');
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        modal.hide();
+    } catch (error) {
+        console.error('Lỗi khi thêm căn hộ:', error);
+        alert('Không thể thêm căn hộ. Vui lòng thử lại sau.');
+    }
+}
+
+// Gắn sự kiện vào biểu mẫu
+document.getElementById('apartmentForm').addEventListener('submit', addApartment);
+
+
+// Gắn sự kiện vào biểu mẫu
+document.getElementById('apartmentForm').addEventListener('submit', addApartment);
+async function deleteApartment(apartmentId) {
+    if (!confirm('Bạn có chắc chắn muốn xóa căn hộ này?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${apiUrlApartment}${apartmentId}/`, {
+            method: 'DELETE',
+        });
+
+        if (!response.ok) {
+            throw new Error(`Không thể xóa căn hộ: ${response.status}`);
+        }
+
+        alert('Căn hộ đã được xóa thành công!');
+        fetchApartments(); // Tải lại danh sách
+    } catch (error) {
+        console.error('Lỗi khi xóa căn hộ:', error);
+        alert('Không thể xóa căn hộ. Vui lòng thử lại sau.');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', fetchApartments);
 
 // Gọi hàm khi tải trang
 window.onload = fetchResidents;
